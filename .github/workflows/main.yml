@@ -3,7 +3,7 @@ name: Power BI CI/CD
 on:
   push:
     branches:
-      - main   # deploy only when code is merged to main
+      - main
 
 jobs:
   deploy-dev:
@@ -19,22 +19,23 @@ jobs:
           node-version: 18
 
       - name: Install Power BI CLI
-        run: npm install -g powerbi-cli
+        run: npm install -g @powerbi-cli/powerbi-cli
 
       - name: Power BI Login
         run: |
-          powerbi login service-principal \
-            --tenant ${{ secrets.PBI_TENANT_ID }} \
-            --client-id ${{ secrets.PBI_CLIENT_ID }} \
-            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
+          pbicli login --service-principal \
+            -p ${{ secrets.PBI_CLIENT_ID }} \
+            -s ${{ secrets.PBI_CLIENT_SECRET }} \
+            -t ${{ secrets.PBI_TENANT_ID }}
 
       - name: Deploy PBIX to Dev
         run: |
-          powerbi import report \
+          pbicli import pbix \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_DEV }} \
-            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --file "./Competitive Marketing Analysis.pbix" \
             --name "Competitive Marketing Analysis" \
-            --overwrite
+            --conflict Overwrite
+
   deploy-uat:
     name: Deploy to UAT
     needs: deploy-dev
@@ -42,17 +43,18 @@ jobs:
     environment: uat
     steps:
       - uses: actions/checkout@v4
-      - run: npm install -g powerbi-cli
+      - run: npm install -g @powerbi-cli/powerbi-cli
       - run: |
-          powerbi login service-principal \
-            --tenant ${{ secrets.PBI_TENANT_ID }} \
-            --client-id ${{ secrets.PBI_CLIENT_ID }} \
-            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
-          powerbi import report \
+          pbicli login --service-principal \
+            -p ${{ secrets.PBI_CLIENT_ID }} \
+            -s ${{ secrets.PBI_CLIENT_SECRET }} \
+            -t ${{ secrets.PBI_TENANT_ID }}
+          pbicli import pbix \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_UAT }} \
-            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --file "./Competitive Marketing Analysis.pbix" \
             --name "Competitive Marketing Analysis" \
-            --overwrite
+            --conflict Overwrite
+
   deploy-prod:
     name: Deploy to PROD
     needs: deploy-uat
@@ -60,14 +62,14 @@ jobs:
     environment: prod
     steps:
       - uses: actions/checkout@v4
-      - run: npm install -g powerbi-cli
+      - run: npm install -g @powerbi-cli/powerbi-cli
       - run: |
-          powerbi login service-principal \
-            --tenant ${{ secrets.PBI_TENANT_ID }} \
-            --client-id ${{ secrets.PBI_CLIENT_ID }} \
-            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
-          powerbi import report \
+          pbicli login --service-principal \
+            -p ${{ secrets.PBI_CLIENT_ID }} \
+            -s ${{ secrets.PBI_CLIENT_SECRET }} \
+            -t ${{ secrets.PBI_TENANT_ID }}
+          pbicli import pbix \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_PROD }} \
-            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --file "./Competitive Marketing Analysis.pbix" \
             --name "Competitive Marketing Analysis" \
-            --overwrite
+            --conflict Overwrite
