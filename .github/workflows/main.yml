@@ -1,0 +1,73 @@
+name: Power BI CI/CD
+
+on:
+  push:
+    branches:
+      - main   # deploy only when code is merged to main
+
+jobs:
+  deploy-dev:
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Power BI CLI
+        run: npm install -g powerbi-cli
+
+      - name: Power BI Login
+        run: |
+          powerbi login service-principal \
+            --tenant ${{ secrets.PBI_TENANT_ID }} \
+            --client-id ${{ secrets.PBI_CLIENT_ID }} \
+            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
+
+      - name: Deploy PBIX to Dev
+        run: |
+          powerbi import report \
+            --workspace ${{ secrets.PBI_WORKSPACE_ID_DEV }} \
+            --file ./reports/Sales.pbix \
+            --name "Sales Report" \
+            --overwrite
+  deploy-uat:
+    name: Deploy to UAT
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: uat
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g powerbi-cli
+      - run: |
+          powerbi login service-principal \
+            --tenant ${{ secrets.PBI_TENANT_ID }} \
+            --client-id ${{ secrets.PBI_CLIENT_ID }} \
+            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
+          powerbi import report \
+            --workspace ${{ secrets.PBI_WORKSPACE_ID_UAT }} \
+            --file ./reports/Sales.pbix \
+            --name "Sales Report" \
+            --overwrite
+  deploy-prod:
+    name: Deploy to PROD
+    needs: deploy-uat
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g powerbi-cli
+      - run: |
+          powerbi login service-principal \
+            --tenant ${{ secrets.PBI_TENANT_ID }} \
+            --client-id ${{ secrets.PBI_CLIENT_ID }} \
+            --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
+          powerbi import report \
+            --workspace ${{ secrets.PBI_WORKSPACE_ID_PROD }} \
+            --file ./reports/Sales.pbix \
+            --name "Sales Report" \
+            --overwrite
