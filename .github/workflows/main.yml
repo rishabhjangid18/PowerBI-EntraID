@@ -32,8 +32,8 @@ jobs:
         run: |
           powerbi import report \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_DEV }} \
-            --file ./reports/Sales.pbix \
-            --name "Sales Report" \
+            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --name "Competitive Marketing Analysis" \
             --overwrite
   deploy-uat:
     name: Deploy to UAT
@@ -50,8 +50,8 @@ jobs:
             --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
           powerbi import report \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_UAT }} \
-            --file ./reports/Sales.pbix \
-            --name "Sales Report" \
+            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --name "Competitive Marketing Analysis" \
             --overwrite
   deploy-prod:
     name: Deploy to PROD
@@ -68,6 +68,6 @@ jobs:
             --client-secret ${{ secrets.PBI_CLIENT_SECRET }}
           powerbi import report \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_PROD }} \
-            --file ./reports/Sales.pbix \
-            --name "Sales Report" \
+            --file ./reports/Competitive\ Marketing\ Analysis.pbix \
+            --name "Competitive Marketing Analysis" \
             --overwrite
