@@ -52,8 +52,7 @@ jobs:
           pbicli import pbix \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_UAT }} \
             --file "./Competitive Marketing Analysis.pbix" \
-            --name "Competitive Marketing Analysis" \
-            --conflict Overwrite
+            --name "Competitive Marketing Analysis"
 
   deploy-prod:
     name: Deploy to PROD
@@ -71,5 +70,4 @@ jobs:
           pbicli import pbix \
             --workspace ${{ secrets.PBI_WORKSPACE_ID_PROD }} \
             --file "./Competitive Marketing Analysis.pbix" \
-            --name "Competitive Marketing Analysis" \
-            --conflict Overwrite
+            --name "Competitive Marketing Analysis"
